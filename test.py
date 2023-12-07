@@ -31,7 +31,7 @@ def scroll_down():
             break
         else:
             pre_height = cur_height
-    driver.implicitly_wait(100)
+    driver.implicitly_wait(30)
 
 
 def go_page(region):
@@ -151,6 +151,37 @@ def get_reviews(store_name):
 
     return reviews, stars
 
+def go_page(region):
+    # url입력
+    url = "https://www.yogiyo.co.kr/mobile/#" # 사이트 입력
+    driver.get(url) # 사이트 오픈
+    driver.maximize_window() # 전체장
+    driver.implicitly_wait(1) # 2초 지연
+
+    # 메인 페이지 검색창 선택
+    xpath = '''//*[@id="search"]/div/form/input'''  # 검색창
+    element = driver.find_element_by_xpath(xpath)
+    element.clear() # 비우고
+    driver.implicitly_wait(1)
+
+    # 검색창 입력
+
+    # value = input("지역을 입력하세요")
+    value = region
+    element.send_keys(value) # 검색창에 region 입력
+    driver.implicitly_wait(1)
+
+    # 검색버튼 클릭
+    search_xpath = '''//*[@id="button_search_address"]/button[2]'''
+    search = driver.find_element_by_xpath(search_xpath) # 검색버튼
+    driver.execute_script("arguments[0].click();", search) # 클릭
+
+
+    # 검색 콤보상자 선택
+    search_result_selector = '#search > div > form > ul > li:nth-child(3) > a'
+    search_result = driver.find_element_by_css_selector(search_result_selector) # 검색 콤보상자
+    driver.execute_script("arguments[0].click();", search_result) #클릭
+    driver.implicitly_wait(3)
 
 def before_get_review(region, store_limit=4):
     store_total_num = go_page(region)
@@ -172,7 +203,14 @@ def get_review_event() -> bool:
 
 
 def isService(num : int) -> bool :
-    return True
+    logo_xpath = f'''//*[@id="content"]/div/div[4]/div/div[2]/div[{num+1}]/div/table/tbody/tr/td[1]'''
+    logo = driver.find_element_by_xpath(logo_xpath)
+
+
+    if("현재 요기요" in logo.text):
+        return False
+    else:
+        return True
 
 def get_total_data(parameter: list):
     # list로 입력받은 param 분해
@@ -217,6 +255,6 @@ def get_total_data(parameter: list):
         # 작업 끝
         print(f'finish {store_name} job completed')
     else :
-
+        pass
     # 반환
     return store_name, reviews, stars
