@@ -17,29 +17,29 @@ options.add_argument('headless')
 options.add_argument('window-size=1920x1080')
 options.add_argument("disable-gpu")
 
+
 def scroll_down():
-    pre_height = driver.execute_script("return document.body.scrollHeight") # 현재 스크롤 위치 저장
+    pre_height = driver.execute_script("return document.body.scrollHeight")  # 현재 스크롤 위치 저장
     try_num = 0
-    while True :
+    while True:
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight)")  # 스크롤을 가장 아래로 내린다
         time.sleep(1)
         cur_height = driver.execute_script("return document.body.scrollHeight")  # 현재 스크롤을 저장한다.
         try_num += 1
         # print(try_num)
-        if pre_height == cur_height :
+        if pre_height == cur_height:
             break
         else:
             pre_height = cur_height
     driver.implicitly_wait(100)
-    
-    
+
 
 def go_page(region):
     # url입력
-    url = "https://www.yogiyo.co.kr/mobile/#" # 사이트 입력
-    driver.get(url) # 사이트 오픈
-    driver.maximize_window() # 전체장
-    driver.implicitly_wait(1) # 2초 지연
+    url = "https://www.yogiyo.co.kr/mobile/#"  # 사이트 입력
+    driver.get(url)  # 사이트 오픈
+    driver.maximize_window()  # 전체장
+    driver.implicitly_wait(1)  # 2초 지연
 
     # 검색창 선택
     xpath = '''//*[@id="search"]/div/form/input'''  # 검색창
@@ -58,7 +58,6 @@ def go_page(region):
     search_xpath = '''//*[@id="button_search_address"]/button[2]'''
     search = driver.find_element_by_xpath(search_xpath)
     driver.execute_script("arguments[0].click();", search)
-
 
     # 검색 콤보상자 선택
     search_result_selector = '#search > div > form > ul > li:nth-child(3) > a'
@@ -84,12 +83,13 @@ def go_page(region):
     scroll_down()
     return stores_num
 
+
 def goto_store(num):
     cnt_error = 0
     try:
         scroll_down()
-        #상점 이동
-        in_store_xpath = f'''//*[@id="content"]/div/div[4]/div/div[2]/div[{num+1}]/div/table/tbody/tr/td[2]'''
+        # 상점 이동
+        in_store_xpath = f'''//*[@id="content"]/div/div[4]/div/div[2]/div[{num + 1}]/div/table/tbody/tr/td[2]'''
         in_store = driver.find_element_by_xpath(in_store_xpath)
         time.sleep(2)
         store_name = in_store.text
@@ -99,18 +99,18 @@ def goto_store(num):
         driver.execute_script("arguments[0].click();", in_store)
         # ActionChains(driver).double_click(in_store)
         driver.implicitly_wait(3)
-        #리뷰 탭 들어가기
+        # 리뷰 탭 들어가기
         review_btn_xpath = '//*[@id="content"]/div[2]/div[1]/ul/li[2]/a'
         review_btn = driver.find_element_by_xpath(review_btn_xpath)
         driver.execute_script("arguments[0].click();", review_btn)
         driver.implicitly_wait(3)
         print(f'{store_name} get review btn')
-        #리뷰 더보기
+        # 리뷰 더보기
         i = 0
         review_errors = 0
         while True:
             i += 1
-            var = i*10 + 2
+            var = i * 10 + 2
             plus_btn_xpath = f'/html/body/div[6]/div[2]/div[1]/div[5]/ul/li[{var}]/a'
             # print(plus_btn_xpath)
             try:
@@ -128,44 +128,95 @@ def goto_store(num):
         error_string = str(error)
         print(error_string)
     return store_name
-        
+
+
 def get_reviews(store_name):
     store_name = store_name
     html = driver.page_source
     html_source = BeautifulSoup(html, 'html.parser')
-    reviews = html_source.find_all('p', attrs={'ng-show':'review.comment',
-                                              'ng-bind-html':'review.comment|strip_html'})
+    reviews = html_source.find_all('p', attrs={'ng-show': 'review.comment',
+                                               'ng-bind-html': 'review.comment|strip_html'})
     reviews = [r.text for r in reviews]
-    taste_star = html_source.find_all('span', attrs={'class':'points ng-binding',
-                                                       'ng-show':"review.rating_taste > 0"})
+    taste_star = html_source.find_all('span', attrs={'class': 'points ng-binding',
+                                                     'ng-show': "review.rating_taste > 0"})
     taste_star = [t.text for t in taste_star]
-    quantity_star = html_source.find_all('span', attrs={'class':'points ng-binding',
-                                                       'ng-show':"review.rating_quantity > 0"})
+    quantity_star = html_source.find_all('span', attrs={'class': 'points ng-binding',
+                                                        'ng-show': "review.rating_quantity > 0"})
     quantity_star = [q.text for q in quantity_star]
-    delivery_star = html_source.find_all('span', attrs={'class':'points ng-binding',
-                                                       'ng-show':"review.rating_delivery > 0"})
+    delivery_star = html_source.find_all('span', attrs={'class': 'points ng-binding',
+                                                        'ng-show': "review.rating_delivery > 0"})
     delivery_star = [d.text for d in delivery_star]
-    stars = {'taste':taste_star, 'quantity':quantity_star, 'delivery':delivery_star}
+    stars = {'taste': taste_star, 'quantity': quantity_star, 'delivery': delivery_star}
     driver.implicitly_wait(2)
-      
+
     return reviews, stars
 
 
-def before_get_review(region):
-    store_num = go_page(region)
+def before_get_review(region, store_limit=4):
+    store_total_num = go_page(region)
+    # store_num = store_total_num
+    store_num = [i for i in range(store_limit)]
     return store_num
 
 
-def get_total_data(parameter):
+def get_clean_mark(num) -> bool:
+    return False
+
+
+def get_delivery_cost() -> tuple[int, int]:
+    return -1, -1
+
+
+def get_review_event() -> bool:
+    return False
+
+
+def isService(num : int) -> bool :
+    return True
+
+def get_total_data(parameter: list):
+    # list로 입력받은 param 분해
     region = parameter[0]
     num = parameter[1]
+
+    # 리턴할 값 정의
+    store_name = ""
+    delivery_cost = -1
+    least_cost = -1
+    isReviewEvent = False
+    reviews = ""
+    starts = {}
+
+    # 대기 후, 검색 페이지 이동
     driver.implicitly_wait(2)
-    before_get_review(region)
-    store_name=goto_store(num)
-    print(f"{num+1} go to store completed")
-    reviews, stars = get_reviews(store_name)
-    driver.back()
-    driver.implicitly_wait(3)
-    print(num+1, '뒤로가기 완료')
-    print(f'finish {store_name} job completed') 
+    go_page(region)  # before_get_review(region)
+
+    # 위생 마크 유무 체크
+    isClean = get_clean_mark(num)
+
+    # 가게 이름 가져오면서 가게 페이지로 이동
+    # 이때 요기요 서비스를 제공하지 않는 가게라면, 리뷰를 가져오지 않는다.
+    if isService(num) :
+        store_name = goto_store(num)
+        print(f"{num + 1} go to store completed")
+
+        # 배송비, 최소주문금액 가져오기
+        delivery_cost, least_cost = get_delivery_cost()
+
+        # 리뷰이벤트 유무 가져오기
+        isReviewEvent = get_review_event()
+
+        # 리뷰 및 별점 가져오기
+        reviews, stars = get_reviews(store_name)
+
+        # 뒤로가기
+        driver.back()
+        driver.implicitly_wait(3)
+        print(num + 1, '뒤로가기 완료')
+
+        # 작업 끝
+        print(f'finish {store_name} job completed')
+    else :
+
+    # 반환
     return store_name, reviews, stars
