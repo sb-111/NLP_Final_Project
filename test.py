@@ -5,6 +5,7 @@ import re
 from fake_useragent import UserAgent
 import json
 import requests
+from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 import chromedriver_autoinstaller
 
@@ -191,11 +192,64 @@ def before_get_review(region, store_limit=4):
 
 
 def get_clean_mark(num) -> bool:
-    return False
+    # 가게 목록들을 보여주는 창에서의 xpath
+    is_clean_mark_xpath = f'//*[@id="content"]/div/div[4]/div/div[2]/div[{num+1}]/div/table/tbody/tr/td[2]/div/ul/li/*[@class="ico-cesco"]'
+    result = True
+
+    # cesco 마크를 찾지 못한다면 NoSuchElementException 예외 발생
+    try:
+        driver.find_element_by_xpath(is_clean_mark_xpath)
+
+    except NoSuchElementException:
+        result = False
+
+    print(f"위생인증여부 {result}")
+
+    return True
 
 
 def get_delivery_cost() -> tuple[int, int]:
-    return -1, -1
+    # 가게 진입 -> 리뷰탭으로 이동한 후, 최소주문금액, 배달비 찾기
+
+    delivery_cost = -1
+    least_cost = -1
+
+    # 최소주문금액과 배달비 xpath
+    least_cost_xpath = '//*[@id="content"]/div[2]/div[1]/div[1]/div[2]/ul/li[3]/span'
+    delivery_cost_xpath = '//*[@id="content"]/div[2]/div[2]/ng-include/div/div[2]/div[4]/span[1]'
+
+    # 쉼표와 한글이 섞인 가격 문자열 (15,000원, 4,000원 ...)을 걸러내기 위한 정규식
+    extract_cost = r'\d{1,3}(,\d{3})*'
+
+    # 최소 주문금액 가져오기
+    try:
+        least_cost_element = driver.find_element_by_xpath(least_cost_xpath)
+        least_cost_str = least_cost_element.text # ex) 14,000원
+        match = re.search(extract_cost, least_cost_str)
+        least_cost = int(match.group().replace(',', ''))
+
+    except NoSuchElementException:
+        least_cost = -1
+
+    except AttributeError:
+        least_cost = -1
+
+    # 배달비 가져오기
+    try:
+        delivery_cost_element = driver.find_element_by_xpath(delivery_cost_xpath)
+        delivery_cost_str = delivery_cost_element.text
+        match = re.search(extract_cost, delivery_cost_str)
+        delivery_cost = int(match.group().replace(',', ''))
+
+    except NoSuchElementException:
+        delivery_cost = -1
+
+    except AttributeError:
+        delivery_cost = -1
+
+    print(f"배달금액 : {delivery_cost}, 최소주문금액 : {least_cost}")
+
+    return delivery_cost, least_cost
 
 
 def get_review_event() -> bool:
@@ -212,6 +266,7 @@ def isService(num : int) -> bool :
     else:
         return True
 
+
 def get_total_data(parameter: list):
     # list로 입력받은 param 분해
     region = parameter[0]
@@ -219,6 +274,7 @@ def get_total_data(parameter: list):
 
     # 리턴할 값 정의
     store_name = ""
+    isClean = False
     delivery_cost = -1
     least_cost = -1
     isReviewEvent = False
@@ -234,7 +290,7 @@ def get_total_data(parameter: list):
 
     # 가게 이름 가져오면서 가게 페이지로 이동
     # 이때 요기요 서비스를 제공하지 않는 가게라면, 리뷰를 가져오지 않는다.
-    if isService(num) :
+    if isServiceProvide(num):
         store_name = goto_store(num)
         print(f"{num + 1} go to store completed")
 
@@ -254,7 +310,9 @@ def get_total_data(parameter: list):
 
         # 작업 끝
         print(f'finish {store_name} job completed')
-    else :
-        pass
+
+    else:
+        print(f"{store_name} : Currently not providing service - job failed")
+
     # 반환
     return store_name, reviews, stars
