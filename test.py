@@ -251,12 +251,41 @@ def get_delivery_cost() -> tuple[int, int]:
 
     return delivery_cost, least_cost
 
+def go_info_tab():
+    info_tab_xpath = f'//*[@id="content"]/div[2]/div[1]/ul/li[3]/a'
+    info_tab = driver.find_element_by_xpath(info_tab_xpath)
+    driver.execute_script("arguments[0].click();", info_tab)
 
 def get_review_event() -> bool:
-    return False
+    review_recognition = ['리뷰','ㄹI뷰', 'ㄹI 뷰', 'ㄹl 뷰']
+    event_recognition = ["이벤트", "2벤트", "E벤트", "e벤트", "ㅇl벤트", "ㅇI벤트"]
+
+    is_review = False
+    is_event = False
+
+    go_info_tab()
+
+    description_xpath = '//*[@id="info"]/div[1]/div[2]'
+    description = driver.find_element_by_xpath(description_xpath)
+
+    # description.text에 review_recognition에 있는 단어가 하나라도 있으면 is_review를 True로 설정
+    for word in review_recognition:
+        if word in description.text:
+            is_review = True
+            break
+
+    # description.text에 event_recognition에 있는 단어가 하나라도 있으면 is_event를 True로 설정
+    for word in event_recognition:
+        if word in description.text:
+            is_event = True
+            break
+
+    # review_recognition과 event_recognition에 모두 있는 경우에만 True, 아니면 False
+    return (is_review and is_event)
 
 
-def isService(num : int) -> bool :
+
+def isServiceProvide(num : int) -> bool :
     logo_xpath = f'''//*[@id="content"]/div/div[4]/div/div[2]/div[{num+1}]/div/table/tbody/tr/td[1]'''
     logo = driver.find_element_by_xpath(logo_xpath)
 
@@ -297,11 +326,11 @@ def get_total_data(parameter: list):
         # 배송비, 최소주문금액 가져오기
         delivery_cost, least_cost = get_delivery_cost()
 
-        # 리뷰이벤트 유무 가져오기
-        isReviewEvent = get_review_event()
-
         # 리뷰 및 별점 가져오기
         reviews, stars = get_reviews(store_name)
+
+        # 리뷰이벤트 유무 가져오기
+        isReviewEvent = get_review_event()
 
         # 뒤로가기
         driver.back()
