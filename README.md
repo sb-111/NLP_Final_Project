@@ -13,9 +13,9 @@
 ### 👨‍👨‍👦‍👦 Members
 
 ---
-[2171063 허진우](https://github.com/jin3811)
-<br>
 [2171291 허승빈](https://github.com/sb-111)
+<br>
+[2171063 허진우](https://github.com/jin3811)
 <br><br>
 
 ### 💻 Using Skills

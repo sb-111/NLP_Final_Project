@@ -308,7 +308,7 @@ def get_total_data(parameter: list):
     least_cost = -1
     isReviewEvent = False
     reviews = ""
-    starts = {}
+    stars = {}
 
     # 대기 후, 검색 페이지 이동
     driver.implicitly_wait(2)
@@ -344,4 +344,4 @@ def get_total_data(parameter: list):
         print(f"{store_name} : Currently not providing service - job failed")
 
     # 반환
-    return store_name, reviews, stars
+    return store_name, reviews, stars, isClean, delivery_cost, least_cost, isReviewEvent
