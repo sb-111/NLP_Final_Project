@@ -152,42 +152,42 @@ def get_reviews(store_name):
 
     return reviews, stars
 
-def go_page(region):
-    # url입력
-    url = "https://www.yogiyo.co.kr/mobile/#" # 사이트 입력
-    driver.get(url) # 사이트 오픈
-    driver.maximize_window() # 전체장
-    driver.implicitly_wait(1) # 2초 지연
-
-    # 메인 페이지 검색창 선택
-    xpath = '''//*[@id="search"]/div/form/input'''  # 검색창
-    element = driver.find_element_by_xpath(xpath)
-    element.clear() # 비우고
-    driver.implicitly_wait(1)
-
-    # 검색창 입력
-
-    # value = input("지역을 입력하세요")
-    value = region
-    element.send_keys(value) # 검색창에 region 입력
-    driver.implicitly_wait(1)
-
-    # 검색버튼 클릭
-    search_xpath = '''//*[@id="button_search_address"]/button[2]'''
-    search = driver.find_element_by_xpath(search_xpath) # 검색버튼
-    driver.execute_script("arguments[0].click();", search) # 클릭
-
-
-    # 검색 콤보상자 선택
-    search_result_selector = '#search > div > form > ul > li:nth-child(3) > a'
-    search_result = driver.find_element_by_css_selector(search_result_selector) # 검색 콤보상자
-    driver.execute_script("arguments[0].click();", search_result) #클릭
-    driver.implicitly_wait(3)
+# def go_page(region):
+#     # url입력
+#     url = "https://www.yogiyo.co.kr/mobile/#" # 사이트 입력
+#     driver.get(url) # 사이트 오픈
+#     driver.maximize_window() # 전체장
+#     driver.implicitly_wait(1) # 2초 지연
+#
+#     # 메인 페이지 검색창 선택
+#     xpath = '''//*[@id="search"]/div/form/input'''  # 검색창
+#     element = driver.find_element_by_xpath(xpath)
+#     element.clear() # 비우고
+#     driver.implicitly_wait(1)
+#
+#     # 검색창 입력
+#
+#     # value = input("지역을 입력하세요")
+#     value = region
+#     element.send_keys(value) # 검색창에 region 입력
+#     driver.implicitly_wait(1)
+#
+#     # 검색버튼 클릭
+#     search_xpath = '''//*[@id="button_search_address"]/button[2]'''
+#     search = driver.find_element_by_xpath(search_xpath) # 검색버튼
+#     driver.execute_script("arguments[0].click();", search) # 클릭
+#
+#
+#     # 검색 콤보상자 선택
+#     search_result_selector = '#search > div > form > ul > li:nth-child(3) > a'
+#     search_result = driver.find_element_by_css_selector(search_result_selector) # 검색 콤보상자
+#     driver.execute_script("arguments[0].click();", search_result) #클릭
+#     driver.implicitly_wait(3)
 
 def before_get_review(region, store_limit=4):
     store_total_num = go_page(region)
-    # store_num = store_total_num
-    store_num = [i for i in range(store_limit)]
+    store_num = store_total_num
+    # store_num = [i for i in range(store_limit)]
     return store_num
 
 
