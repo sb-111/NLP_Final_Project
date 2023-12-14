@@ -66,6 +66,6 @@
 [전체적으로 참고한 코드](https://github.com/silver96/yogiyo_review_sentiment/blob/main/crawl_yogiyo.ipynb)<br>
 
 ### fine tuning
-[koBart 사용 시도 - 실패 : vram 부족](https://github.com/boostcampaitech3/final-project-level3-nlp-07)
+[koBart 사용](https://github.com/boostcampaitech3/final-project-level3-nlp-07)
 
 </div>
