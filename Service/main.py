@@ -8,6 +8,16 @@ st.title("🍱 🍙별점 + 리뷰 기반 매장 추천 생성봇")
 
 st.markdown("안녕하세요! 저는 여러분들이 입력한 별점과 리뷰를 기반으로 한성대 인근 배달 음식점을 추천해주는 매장 추천 봇 입니다!", unsafe_allow_html=True)
 
+# 라디오 버튼이 수평으로 배치되도록
+st.write(
+    '''
+    <style>
+        div.row-widget.stRadio > div {
+            flex-direction:row;
+        }
+    </style>
+    ''', unsafe_allow_html=True)
+
 with st.form(key="customer_form", clear_on_submit=False):
 
     # 수직 배치됨
@@ -18,13 +28,12 @@ with st.form(key="customer_form", clear_on_submit=False):
 
     # 수평 배치
     taste_star = st.radio("맛 별점", ("5", "4", "3", "2", "1"))
-    st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 
     quantity_star = st.radio("양 별점", ("5", "4", "3", "2", "1"))
-    st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+    # st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 
     delivery_star = st.radio("배달 별점", ("5", "4", "3", "2", "1"))
-    st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+    # st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 
     customer_review = st.text_area("리뷰를 작성해주세요!", placeholder="리뷰를 입력해주세요.", key="text")
 
